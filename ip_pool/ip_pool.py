@@ -1,0 +1,2 @@
+class IPPool:
+    pass
