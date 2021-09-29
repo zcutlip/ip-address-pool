@@ -21,7 +21,7 @@ setup(name='ip-pool',
       license="MIT",
       packages=find_packages(),
       entry_points={
-          'console_scripts': ['ip-pool=ip_pool.cli:main'], },
+          'console_scripts': ['ip-pool=ip_pool.cli:ip_pool_main'], },
       python_requires='>=3.7',
       install_requires=[],
       package_data={'ip_pool': ['config/*']},
