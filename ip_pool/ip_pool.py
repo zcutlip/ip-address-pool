@@ -39,6 +39,17 @@ class IPAddressPool:
         self._prefix_len = prefix_len
         self._save()
 
+    def new_address(self, hostname: str):
+        if hostname in self._hostnames:
+            raise IPAddressPoolException(f"Hostname {hostname}")
+        try:
+            addr = self._ipaddr_pool.pop(0)
+        except IndexError:
+            raise IPAddressPoolException("Uninitialized address pool")
+        self._hostnames[hostname] = addr
+        self._save()
+        return addr
+
     def _to_dict(self):
         _dict = {
             "ip_version": self._ip_version,
