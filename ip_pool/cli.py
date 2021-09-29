@@ -6,7 +6,11 @@ from .ip_pool import IPAddressPool
 def parse_args():
     parser = ArgumentParser()
     parser.add_argument("pool_db_json", help="Path to ip pool database json file")
-    parser.add_argument("--initialize", metavar="cidr_address", help="Initialize IP pool with the provided CIDR address/netmask")
+    parser.add_argument(
+        "--new-address",
+        metavar="HOSTNAME",
+        help="Allocate next unused address to HOSTNAME",
+    )
     parsed = parser.parse_args()
     return parsed
 
@@ -16,7 +20,10 @@ def ip_pool_main():
     pool = IPAddressPool(options.pool_db_json)
     if options.initialize:
         pool.initialize(options.initialize)
-    for addr in pool.addresses:
+
+    if options.new_address:
+        hostname = options.new_address
+        addr = pool.new_address(hostname)
         print(addr)
 
 
