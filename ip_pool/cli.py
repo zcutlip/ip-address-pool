@@ -1,6 +1,7 @@
+import sys
 from argparse import ArgumentParser
 
-from .ip_pool import IPAddressPool
+from .ip_pool import IPAddressPool, IPAddressPoolException
 
 
 def parse_args():
@@ -32,23 +33,28 @@ def parse_args():
 
 def ip_pool_main():
     options = parse_args()
-    pool = IPAddressPool(options.pool_db_json)
-    if options.initialize:
-        pool.initialize(options.initialize)
+    try:
+        pool = IPAddressPool(options.pool_db_json)
+        if options.initialize:
+            pool.initialize(options.initialize)
 
-    if options.release_address:
-        hostname = options.release_address
-        pool.release_address(hostname)
+        if options.release_address:
+            hostname = options.release_address
+            pool.release_address(hostname)
 
-    if options.new_address:
-        hostname = options.new_address
-        addr = pool.new_address(hostname)
-        print(addr)
+        if options.new_address:
+            hostname = options.new_address
+            addr = pool.new_address(hostname)
+            print(addr)
 
-    if options.address_for:
-        hostname = options.address_for
-        addr = pool.address_for(hostname)
-        print(addr)
+        if options.address_for:
+            hostname = options.address_for
+            addr = pool.address_for(hostname)
+            print(addr)
+    except IPAddressPoolException as e:
+        print(e, file=sys.stderr)
+        return -1
+    return 0
 
 
 if __name__ == "__main__":
