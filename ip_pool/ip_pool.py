@@ -1,7 +1,6 @@
 import ipaddress
 import json
-
-from ipaddress import IPv4Interface, IPv4Network, IPv4Address
+from ipaddress import IPv4Address, IPv4Interface, IPv4Network
 from typing import Dict
 
 
@@ -14,12 +13,16 @@ class IPAddressPool:
         self.json_path = ipaddr_db_json_path
         self._ip_version = 4
         self._prefix_len = 0
-        self._ipaddr_pool = {}
+        self._ipaddr_pool = []
+        self._hostnames = {}
         self._load_from_json(ipaddr_db_json_path)
 
     @property
     def addresses(self):
-        addresses = list(self._ipaddr_pool.keys())
+        addresses = list(self._ipaddr_pool)
+        addresses.extend(self._hostnames.keys())
+        addresses.sort()
+
         return addresses
 
     def is_initialized(self):
@@ -32,9 +35,7 @@ class IPAddressPool:
 
         prefix_len, address_list = self._generate_addresses(ipv4_cidr_address)
 
-        for addr in address_list:
-            self._ipaddr_pool[addr] = None
-
+        self._ipaddr_pool = address_list
         self._prefix_len = prefix_len
         self._save()
 
@@ -42,15 +43,36 @@ class IPAddressPool:
         _dict = {
             "ip_version": self._ip_version,
             "network_prefix_len": self._prefix_len,
-            "addresses": {str(k): v for k, v in self._ipaddr_pool.items()}
+            "unused_addresses": [str(k) for k in self._ipaddr_pool],
+            "hostnames": {k: str(v) for k, v in self._hostnames.items()},
         }
+
         return _dict
 
     def _initialize_from_dict(self, ip_pool_dict: Dict):
         self._ip_version = ip_pool_dict["ip_version"]
         self._prefix_len = ip_pool_dict["network_prefix_len"]
-        addrs = ip_pool_dict["addresses"]
-        self._ipaddr_pool = {IPv4Address(k): v for k, v in addrs.items()}
+        unused_addrs = ip_pool_dict["unused_addresses"]
+        hostnames = ip_pool_dict["hostnames"]
+
+        pool = []
+        # hostnames = {}
+
+        for addr_str in unused_addrs:
+            addr = IPv4Address(addr_str)
+            pool.append(addr)
+
+        for hostname, addr_str in hostnames.items():
+            addr = IPv4Address(addr_str)
+            if addr in hostnames.values():
+                dupes = [hostname, hostnames[addr]]
+                raise IPAddressPoolException(
+                    f"Address [{addr_str}] used more than once: {dupes} "
+                )
+            hostnames[hostname] = addr
+
+        self._hostnames = hostnames
+        self._ipaddr_pool = pool
 
     def _save(self):
         save_dict = self._to_dict()
