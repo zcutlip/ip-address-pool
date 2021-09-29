@@ -41,7 +41,7 @@ class IPAddressPool:
 
     def new_address(self, hostname: str):
         if hostname in self._hostnames:
-            raise IPAddressPoolException(f"Hostname {hostname}")
+            raise IPAddressPoolException(f"Hostname {hostname} already in use")
         try:
             addr = self._ipaddr_pool.pop(0)
         except IndexError:
