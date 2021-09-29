@@ -58,7 +58,11 @@ class IPAddressPool:
         return addr
 
     def release_address(self, hostname):
-        addr = self._hostnames.pop(hostname)
+        try:
+            addr = self._hostnames.pop(hostname)
+        except KeyError:
+            raise IPAddressPoolException(f"No address for hostname {hostname}")
+
         self._ipaddr_pool.append(addr)
         self._ipaddr_pool.sort()
         self._save()
