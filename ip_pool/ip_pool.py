@@ -50,6 +50,13 @@ class IPAddressPool:
         self._save()
         return addr
 
+    def address_for(self, hostname: str) -> IPv4Address:
+        try:
+            addr = self._hostnames[hostname]
+        except KeyError:
+            raise IPAddressPoolException(f"No address for hostname {hostname}")
+        return addr
+
     def release_address(self, hostname):
         addr = self._hostnames.pop(hostname)
         self._ipaddr_pool.append(addr)
