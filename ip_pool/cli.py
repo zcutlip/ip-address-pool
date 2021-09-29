@@ -21,6 +21,11 @@ def parse_args():
         metavar="HOSTNAME",
         help="Release address for HOSTNAME and return it to the pool",
     )
+
+    parser.add_argument(
+        "--address-for", metavar="HOSTNAME", help="Print address for HOSTNAME"
+    )
+
     parsed = parser.parse_args()
     return parsed
 
@@ -38,6 +43,11 @@ def ip_pool_main():
     if options.new_address:
         hostname = options.new_address
         addr = pool.new_address(hostname)
+        print(addr)
+
+    if options.address_for:
+        hostname = options.address_for
+        addr = pool.address_for(hostname)
         print(addr)
 
 
