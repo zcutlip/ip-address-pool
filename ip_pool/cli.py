@@ -7,6 +7,11 @@ def parse_args():
     parser = ArgumentParser()
     parser.add_argument("pool_db_json", help="Path to ip pool database json file")
     parser.add_argument(
+        "--initialize",
+        metavar="CIDR_ADDRESS",
+        help="Initialize IP pool with the provided CIDR address/netmask",
+    )
+    parser.add_argument(
         "--new-address",
         metavar="HOSTNAME",
         help="Allocate next unused address to HOSTNAME",
