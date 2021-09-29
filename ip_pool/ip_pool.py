@@ -50,6 +50,12 @@ class IPAddressPool:
         self._save()
         return addr
 
+    def release_address(self, hostname):
+        addr = self._hostnames.pop(hostname)
+        self._ipaddr_pool.append(addr)
+        self._ipaddr_pool.sort()
+        self._save()
+
     def _to_dict(self):
         _dict = {
             "ip_version": self._ip_version,
