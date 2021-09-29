@@ -1,7 +1,7 @@
 import ipaddress
 import json
 from ipaddress import IPv4Address, IPv4Interface, IPv4Network
-from typing import Dict
+from typing import Dict, List
 
 
 class IPAddressPoolException(Exception):
@@ -18,7 +18,7 @@ class IPAddressPool:
         self._load_from_json(ipaddr_db_json_path)
 
     @property
-    def addresses(self):
+    def addresses(self) -> List[IPv4Address]:
         addresses = list(self._ipaddr_pool)
         addresses.extend(self._hostnames.keys())
         addresses.sort()
@@ -39,7 +39,7 @@ class IPAddressPool:
         self._prefix_len = prefix_len
         self._save()
 
-    def new_address(self, hostname: str):
+    def new_address(self, hostname: str) -> IPv4Address:
         if hostname in self._hostnames:
             raise IPAddressPoolException(f"Hostname {hostname} already in use")
         try:
