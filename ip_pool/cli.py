@@ -16,6 +16,11 @@ def parse_args():
         metavar="HOSTNAME",
         help="Allocate next unused address to HOSTNAME",
     )
+    parser.add_argument(
+        "--release-address",
+        metavar="HOSTNAME",
+        help="Release address for HOSTNAME and return it to the pool",
+    )
     parsed = parser.parse_args()
     return parsed
 
@@ -25,6 +30,10 @@ def ip_pool_main():
     pool = IPAddressPool(options.pool_db_json)
     if options.initialize:
         pool.initialize(options.initialize)
+
+    if options.release_address:
+        hostname = options.release_address
+        pool.release_address(hostname)
 
     if options.new_address:
         hostname = options.new_address
