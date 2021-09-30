@@ -56,13 +56,13 @@ $ ip-pool ./pool.json --new-address server_1
 192.168.8.1/24
 ```
 
-Return a new address for hostname `server_1`:
+Return address for hostname `server_1` back to the pool:
 
 ```Console
 $ ip-pool ./pool.json --release-address server_1
 ```
 
-Reassign an address from host_2 to host_3:
+Reassign an address from `host_2` to `host_3`:
 
 ```Console
 $  ip-pool ./pool.json --release-address host_2 --new-address host_3
