@@ -1,5 +1,6 @@
 import sys
 from argparse import ArgumentParser
+from typing import Dict
 
 from .ip_pool import IPAddressPool, IPAddressPoolException
 
@@ -27,6 +28,11 @@ def parse_args():
         "--address-for", metavar="HOSTNAME", help="Print address for HOSTNAME"
     )
 
+    parser.add_argument(
+        "--list-used",
+        action="store_true",
+        help="List used IP addresses and identifiers",
+    )
     parsed = parser.parse_args()
     return parsed
 
@@ -51,6 +57,12 @@ def ip_pool_main():
             hostname = options.address_for
             addr = pool.address_for(hostname)
             print(addr)
+
+        if options.list_used:
+            used_addrs: Dict = pool.used_addresses()
+            for host, addr in used_addrs.items():
+                print(f"{host}: {addr}")
+
     except IPAddressPoolException as e:
         print(e, file=sys.stderr)
         return -1
