@@ -74,8 +74,7 @@ class IPAddressPool:
     def _to_dict(self):
         _dict = {
             "ip_version": self._ip_version,
-            "network_prefix_len": self._prefix_len,
-            "unused_addresses": [str(k) for k in self._ipaddr_pool],
+            "network": str(self._network),
             "hostnames": {k: str(v) for k, v in self._hostnames.items()},
         }
 
@@ -83,16 +82,13 @@ class IPAddressPool:
 
     def _initialize_from_dict(self, ip_pool_dict: Dict):
         self._ip_version = ip_pool_dict["ip_version"]
-        self._prefix_len = ip_pool_dict["network_prefix_len"]
-        unused_addrs = ip_pool_dict["unused_addresses"]
+        network = IPv4Network(ip_pool_dict["network"])
         hostnames = ip_pool_dict["hostnames"]
+
+        # unused_addrs = ip_pool_dict["unused_addresses"]
 
         pool = []
         # hostnames = {}
-
-        for addr_str in unused_addrs:
-            addr = IPv4Address(addr_str)
-            pool.append(addr)
 
         for hostname, addr_str in hostnames.items():
             addr = IPv4Address(addr_str)
@@ -102,7 +98,13 @@ class IPAddressPool:
                     f"Address [{addr_str}] used more than once: {dupes} "
                 )
             hostnames[hostname] = addr
+        pool = list(network.hosts())
+        used_addrs = list(hostnames.values())
+        for used in used_addrs:
+            if used in pool:
+                pool.remove(used)
 
+        self._network = network
         self._hostnames = hostnames
         self._ipaddr_pool = pool
 
