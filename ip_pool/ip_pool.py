@@ -20,6 +20,12 @@ class IPAddressPool:
     def prefixlen(self):
         return self._network.prefixlen
 
+    def used_addresses(self, cidr=True):
+        addrs = dict(self._hostnames)
+        if cidr:
+            addrs = {k: self._cidr_addr(v) for k, v in addrs.items()}
+        return addrs
+
     @property
     def addresses(self) -> List[IPv4Address]:
         addresses = list(self._ipaddr_pool)
