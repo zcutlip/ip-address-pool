@@ -43,7 +43,7 @@ class IPAddressPool:
         self._ipaddr_pool = address_list
         self._save()
 
-    def new_address(self, hostname: str) -> IPv4Address:
+    def new_address(self, hostname: str, cidr=True) -> IPv4Address:
         if hostname in self._hostnames:
             raise IPAddressPoolException(f"Hostname {hostname} already in use")
         try:
@@ -52,13 +52,19 @@ class IPAddressPool:
             raise IPAddressPoolException("Uninitialized address pool")
         self._hostnames[hostname] = addr
         self._save()
+        if cidr:
+            addr_str = f"{addr}/{self.prefixlen}"
+            addr = IPv4Interface(addr_str)
         return addr
 
-    def address_for(self, hostname: str) -> IPv4Address:
+    def address_for(self, hostname: str, cidr=True) -> IPv4Address:
         try:
             addr = self._hostnames[hostname]
         except KeyError:
             raise IPAddressPoolException(f"No address for hostname {hostname}")
+        if cidr:
+            addr_str = f"{addr}/{self.prefixlen}"
+            addr = IPv4Interface(addr_str)
         return addr
 
     def release_address(self, hostname):
