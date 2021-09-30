@@ -6,6 +6,12 @@ This is a tool to generate a list of IP addresses and track which ones are used.
 
 Currently only supports IPv4.
 
+## Installation
+
+```Console
+$ pip3 install [--user] ip-pool
+```
+
 ## Example Usage
 
 Usage:
