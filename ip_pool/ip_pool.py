@@ -1,4 +1,3 @@
-import ipaddress
 import json
 from ipaddress import IPv4Address, IPv4Interface, IPv4Network
 from typing import Dict, List
@@ -12,10 +11,14 @@ class IPAddressPool:
     def __init__(self, ipaddr_db_json_path: str):
         self.json_path = ipaddr_db_json_path
         self._ip_version = 4
-        self._prefix_len = 0
+        self._network = None
         self._ipaddr_pool = []
         self._hostnames = {}
         self._load_from_json(ipaddr_db_json_path)
+
+    @property
+    def prefixlen(self):
+        return self._network.prefixlen
 
     @property
     def addresses(self) -> List[IPv4Address]:
@@ -33,10 +36,11 @@ class IPAddressPool:
         if self.is_initialized():
             raise IPAddressPoolException("Address pool already initialized")
 
-        prefix_len, address_list = self._generate_addresses(ipv4_cidr_address)
-
+        iface = IPv4Interface(ipv4_cidr_address)
+        network: IPv4Network = iface.network
+        address_list = list(network.hosts())
+        self._network = network
         self._ipaddr_pool = address_list
-        self._prefix_len = prefix_len
         self._save()
 
     def new_address(self, hostname: str) -> IPv4Address:
@@ -112,10 +116,3 @@ class IPAddressPool:
             self._initialize_from_dict(loaded)
         except FileNotFoundError:
             pass
-
-    def _generate_addresses(self, cidr_address):
-        iface: IPv4Interface = ipaddress.ip_interface(cidr_address)
-        network: IPv4Network = iface.network
-        prefix_len = network.prefixlen
-        hosts = list(network.hosts())
-        return prefix_len, hosts
