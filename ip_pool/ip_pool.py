@@ -53,8 +53,7 @@ class IPAddressPool:
         self._hostnames[hostname] = addr
         self._save()
         if cidr:
-            addr_str = f"{addr}/{self.prefixlen}"
-            addr = IPv4Interface(addr_str)
+            addr = self._cidr_addr(addr)
         return addr
 
     def address_for(self, hostname: str, cidr=True) -> IPv4Address:
@@ -63,8 +62,7 @@ class IPAddressPool:
         except KeyError:
             raise IPAddressPoolException(f"No address for hostname {hostname}")
         if cidr:
-            addr_str = f"{addr}/{self.prefixlen}"
-            addr = IPv4Interface(addr_str)
+            addr = self._cidr_addr(addr)
         return addr
 
     def release_address(self, hostname):
@@ -76,6 +74,11 @@ class IPAddressPool:
         self._ipaddr_pool.append(addr)
         self._ipaddr_pool.sort()
         self._save()
+
+    def _cidr_addr(self, addr: IPv4Address):
+        addr_str = f"{addr}/{self.prefixlen}"
+        addr = IPv4Interface(addr_str)
+        return addr
 
     def _to_dict(self):
         _dict = {
